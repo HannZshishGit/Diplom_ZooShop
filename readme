@@ -1,0 +1,250 @@
+drop database if exists ZooShop;
+create database ZooShop;
+use ZooShop;
+
+create table users (
+	user_id int primary key auto_increment,
+    email varchar(100),
+    password_hash varchar(255),
+    fullname varchar(100)
+);
+
+create table categories (
+	category_id int primary key auto_increment,
+    category_name enum("Собаки", "Кішки", "Птахи") unique
+);
+
+create table subcategories (
+	subcategory_id int primary key auto_increment,
+    category_id int,
+	subcategory_name enum ("Корм", "Іграшки", "Ласощі", "Здоров'я"),
+    
+    foreign key (category_id) references categories (category_id) on delete cascade 
+);
+
+create table products (
+	product_id int primary key auto_increment,
+    product_name varchar(50) not null,
+    article varchar(50) unique not null,
+    price decimal(10,2) not null,
+    image_path varchar(255),
+    subcategory_id int,
+    
+    foreign key (subcategory_id) references subcategories (subcategory_id) on delete cascade
+);
+
+create table food_products (
+    product_id int primary key, 								-- ідентифікатор товару (зв'язок з таблицею products)
+    animal_type enum('Собаки', 'Кішки', 'Птахи'), 				-- для якого типу тварини призначено корм
+    food_type enum('Сухий', 'Вологий'), 						-- тип корму
+    weight_grams int, 											-- вага продукту в грамах
+    age_group enum('Молоді', 'Дорослі', 'Старі'), 				-- вікова категорія тварини
+    foreign key (product_id) references products(product_id) on delete cascade
+);
+
+create table toy_products (
+    product_id int primary key, 								-- ідентифікатор товару
+    material enum('Гума', 'Пластик', 'Тканина'), 				-- матеріал іграшки
+    size enum('Маленький', 'Середній', 'Великий'), 				-- розмір іграшки
+    has_sound boolean, 											-- чи видає іграшка звук
+    foreign key (product_id) references products(product_id) on delete cascade
+);
+
+create table treat_products (
+    product_id int primary key, 								-- ідентифікатор товару
+    animal_type enum('Собаки', 'Кішки', "Птахи"), 				-- для якого типу тварини
+    purpose enum('Тренування', 'Нагорода', 'Для зубів'), 		-- призначення ласощів
+    weight_grams int, 											-- вага в грамах
+    foreign key (product_id) references products(product_id) on delete cascade
+);
+
+create table health_products (
+    product_id int primary key, -- ідентифікатор товару
+    product_type enum('Вітаміни', 'Ліки', 'Добавки'), 			-- тип продукту
+    animal_type enum('Собаки', 'Кішки', 'Птахи'), 				-- для яких тварин
+    form enum('Таблетки', 'Рідина', 'Порошок'), 				-- форма випуску
+    foreign key (product_id) references products(product_id) on delete cascade
+);
+
+create table reviews (
+	review_id int primary key auto_increment,
+    content varchar(255) not null,
+    review_date date not null,
+	product_id int not null,
+    user_id int not null,
+    
+    foreign key(user_id) references users(user_id) on delete cascade,
+    foreign key(product_id) references products(product_id) on delete cascade
+);
+
+use zooshop;
+
+insert into categories (category_name) values 
+("Собаки"),
+("Кішки"),
+("Птахи");
+
+-- Собаки (1)
+INSERT INTO subcategories (category_id, subcategory_name) VALUES
+(1, 'Корм'),
+(1, 'Іграшки'),
+(1, 'Ласощі'),
+(1, 'Здоров''я');
+
+-- Кішки (2)
+INSERT INTO subcategories (category_id, subcategory_name) VALUES
+(2, 'Корм'),
+(2, 'Іграшки'),
+(2, 'Ласощі'),
+(2, 'Здоров''я');
+
+INSERT INTO subcategories (category_id, subcategory_name) VALUES
+(3, 'Корм'),
+(3, 'Іграшки'),
+(3, 'Ласощі'),
+(3, 'Здоров''я');
+
+insert into products (product_name, article, price, image_path, subcategory_id) values
+-- Собаки
+-- КОРМ (1–5)
+('Royal Canin Medium Adult', 'DOG-F-001', 899.99, '', 1),
+('Purina Pro Plan Sensitive Skin', 'DOG-F-002', 799.50, '', 1),
+('Hill''s Science Plan Puppy', 'DOG-F-003', 950.00, '', 1),
+('Acana Adult Dog', 'DOG-F-004', 1100.00, '', 1),
+('Brit Premium Senior', 'DOG-F-005', 720.00, '', 1),
+-- ІГРАШКИ (6–10)
+('М''яч гумовий для собак', 'DOG-T-006', 120.00, '', 2),
+('Кістка жувальна з гуми', 'DOG-T-007', 150.00, '', 2),
+('Іграшка канат', 'DOG-T-008', 180.00, '', 2),
+('Пищалка курка', 'DOG-T-009', 140.00, '', 2),
+('М''яка іграшка ведмідь', 'DOG-T-010', 200.00, '', 2),
+-- ЛАСОЩІ (11–15)
+('Pedigree DentaStix', 'DOG-S-011', 130.00, '', 3),
+('Ласощі з куркою', 'DOG-S-012', 110.00, '', 3),
+('Сушене м''ясо яловичини', 'DOG-S-013', 170.00, '', 3),
+('Печиво для собак', 'DOG-S-014', 95.00, '', 3),
+('Ласощі для тренувань', 'DOG-S-015', 105.00, '', 3),
+-- ЗДОРОВ''Я (16–20)
+('Вітаміни для шерсті', 'DOG-H-016', 210.00, '', 4),
+('Кальцій для собак', 'DOG-H-017', 180.00, '', 4),
+('Препарат від бліх', 'DOG-H-018', 250.00, '', 4),
+('Добавка для суглобів', 'DOG-H-019', 300.00, '', 4),
+('Мультивітаміни', 'DOG-H-020', 275.00, '', 4),
+-- Коти
+-- КОРМ (21–25)
+('Royal Canin Indoor Adult', 'CAT-F-021', 700.00, '', 5),
+('Purina One Hairball Care', 'CAT-F-022', 650.00, '', 5),
+('Hill''s Science Plan Kitten', 'CAT-F-023', 800.00, '', 5),
+('Acana Cat & Kitten', 'CAT-F-024', 950.00, '', 5),
+('Whiskas Sterilised', 'CAT-F-025', 400.00, '', 5),
+-- ІГРАШКИ (26–30)
+('М''ячик з дзвіночком', 'CAT-T-026', 50.00, '', 6),
+('Іграшка-мишеня', 'CAT-T-027', 60.00, '', 6),
+('Канатна іграшка для котів', 'CAT-T-028', 70.00, '', 6),
+('Лазерна указка', 'CAT-T-029', 120.00, '', 6),
+('Іграшка-перо на палиці', 'CAT-T-030', 90.00, '', 6),
+-- ЛАСОЩІ (31–35)
+('Catisfactions Crispy', 'CAT-S-031', 40.00, '', 7),
+('Ласощі з куркою', 'CAT-S-032', 45.00, '', 7),
+('Сушене рибне філе', 'CAT-S-033', 70.00, '', 7),
+('Печиво для котів', 'CAT-S-034', 30.00, '', 7),
+('Ласощі для тренування', 'CAT-S-035', 35.00, '', 7),
+-- ЗДОРОВ''Я (36–40)
+('Вітаміни для котів', 'CAT-H-036', 150.00, '', 8),
+('Мультивітаміни для котів', 'CAT-H-037', 200.00, '', 8),
+('Препарат від бліх для котів', 'CAT-H-038', 180.00, '', 8),
+('Добавка для шерсті', 'CAT-H-039', 220.00, '', 8),
+('Кальцій для котів', 'CAT-H-040', 160.00, '', 8),
+-- Птахи
+-- КОРМ (41–45)
+('Versele-Laga Prestige Parrot', 'BRD-F-041', 500.00, '', 9),
+('Hobby Bird Seed Mix', 'BRD-F-042', 300.00, '', 9),
+('Vitakraft Parakeet Food', 'BRD-F-043', 250.00, '', 9),
+('Padovan Tropical Mix', 'BRD-F-044', 400.00, '', 9),
+('Roudybush Bird Food', 'BRD-F-045', 450.00, '', 9),
+-- ІГРАШКИ (46–50)
+('Дзеркало для папуги', 'BRD-T-046', 150.00, '', 10),
+('Іграшка-дзвіночок', 'BRD-T-047', 120.00, '', 10),
+('Качелька для клітки', 'BRD-T-048', 200.00, '', 10),
+('Іграшка дзвіночком', 'BRD-T-049', 100.00, '', 10),
+('Іграшка з мотузки', 'BRD-T-050', 130.00, '', 10),
+-- ЛАСОЩІ (51–55)
+('Лакомство для папуг', 'BRD-S-051', 80.00, '', 11),
+('Сушене насіння', 'BRD-S-052', 70.00, '', 11),
+('Паличка з медом', 'BRD-S-053', 90.00, '', 11),
+('Ласощі для тримання дзьоба', 'BRD-S-054', 60.00, '', 11),
+('Насіння для тренування', 'BRD-S-055', 50.00, '', 11),
+-- ЗДОРОВ''Я (56–60)
+('Вітаміни для птахів', 'BRD-H-056', 120.00, '', 12),
+('Минеральна добавка', 'BRD-H-057', 100.00, '', 12),
+('Препарат від паразитів', 'BRD-H-058', 140.00, '', 12),
+('Вітамінна суміш для папуг', 'BRD-H-059', 130.00, '', 12),
+('Добавка для кісток', 'BRD-H-060', 150.00, '', 12);
+
+INSERT INTO food_products (product_id, animal_type, food_type, weight_grams, age_group) VALUES
+(1, 'Собаки', 'Сухий', 3000, 'Дорослі'),
+(2, 'Собаки', 'Сухий', 2500, 'Дорослі'),
+(3, 'Собаки', 'Сухий', 2000, 'Молоді'),
+(4, 'Собаки', 'Сухий', 5000, 'Дорослі'),
+(5, 'Собаки', 'Сухий', 3000, 'Старі'),
+(21, 'Кішки', 'Сухий', 2000, 'Дорослі'),
+(22, 'Кішки', 'Сухий', 1500, 'Дорослі'),
+(23, 'Кішки', 'Сухий', 1000, 'Молоді'),
+(24, 'Кішки', 'Сухий', 2000, 'Дорослі'),
+(25, 'Кішки', 'Сухий', 1500, 'Старі'),
+(41, 'Птахи', 'Сухий', 1000, 'Дорослі'),
+(42, 'Птахи', 'Сухий', 800, 'Дорослі'),
+(43, 'Птахи', 'Сухий', 500, 'Молоді'),
+(44, 'Птахи', 'Сухий', 1000, 'Дорослі'),
+(45, 'Птахи', 'Сухий', 750, 'Старі');
+
+INSERT INTO toy_products (product_id, material, size, has_sound) VALUES
+(6, 'Гума', 'Середній', false),
+(7, 'Гума', 'Середній', false),
+(8, 'Тканина', 'Великий', false),
+(9, 'Пластик', 'Маленький', true),
+(10, 'Тканина', 'Середній', true),
+(26, 'Тканина', 'Маленький', true),
+(27, 'Тканина', 'Маленький', false),
+(28, 'Тканина', 'Середній', false),
+(29, 'Пластик', 'Маленький', false),
+(30, 'Тканина', 'Середній', true),
+(46, 'Пластик', 'Маленький', true),
+(47, 'Пластик', 'Маленький', true),
+(48, 'Пластик', 'Середній', false),
+(49, 'Пластик', 'Маленький', true),
+(50, 'Тканина', 'Маленький', false);
+
+INSERT INTO treat_products (product_id, animal_type, purpose, weight_grams) VALUES
+(11, 'Собаки', 'Для зубів', 180),
+(12, 'Собаки', 'Нагорода', 150),
+(13, 'Собаки', 'Нагорода', 200),
+(14, 'Собаки', 'Тренування', 120),
+(15, 'Собаки', 'Тренування', 130),
+(31, 'Кішки', 'Нагорода', 50),
+(32, 'Кішки', 'Нагорода', 60),
+(33, 'Кішки', 'Для зубів', 70),
+(34, 'Кішки', 'Тренування', 40),
+(35, 'Кішки', 'Тренування', 45),
+(51, 'Птахи', 'Нагорода', 20),
+(52, 'Птахи', 'Нагорода', 25),
+(53, 'Птахи', 'Для зубів', 30),
+(54, 'Птахи', 'Тренування', 15),
+(55, 'Птахи', 'Тренування', 20);
+
+INSERT INTO health_products (product_id, product_type, animal_type, form) VALUES
+(16, 'Вітаміни', 'Собаки', 'Таблетки'),
+(17, 'Добавки', 'Собаки', 'Порошок'),
+(18, 'Ліки', 'Собаки', 'Рідина'),
+(19, 'Добавки', 'Собаки', 'Таблетки'),
+(20, 'Вітаміни', 'Собаки', 'Таблетки'),
+(36, 'Вітаміни', 'Кішки', 'Таблетки'),
+(37, 'Вітаміни', 'Кішки', 'Порошок'),
+(38, 'Ліки', 'Кішки', 'Рідина'),
+(39, 'Добавки', 'Кішки', 'Таблетки'),
+(40, 'Вітаміни', 'Кішки', 'Рідина'),
+(56, 'Вітаміни', 'Птахи', 'Таблетки'),
+(57, 'Добавки', 'Птахи', 'Порошок'),
+(58, 'Ліки', 'Птахи', 'Рідина'),
+(59, 'Добавки', 'Птахи', 'Таблетки'),
+(60, 'Вітаміни', 'Птахи', 'Рідина');
