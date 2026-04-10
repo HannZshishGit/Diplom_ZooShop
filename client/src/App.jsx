@@ -17,6 +17,7 @@ function App() {
           path="/catalog/:category/:subcategory"
           element={<CatalogPage />}
         />
+
         <Route
           path="/catalog/:category/:subcategory/:article"
           element={<ProductPage />}
